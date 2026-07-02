@@ -63,6 +63,45 @@
 .rp-low     { color: #4ade80; }
 .rp-pass    { color: var(--pos); }
 
+/* ── Section animations ── */
+/* scanner stack: fade-in + one scan-line sweep down the table */
+.scanner-wrap { position: relative; overflow: hidden; }
+.scanner-wrap::after { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0; pointer-events: none; }
+.scanner-wrap.in::after { animation: scanSweep 1.7s ease-in-out .2s 1; }
+@keyframes scanSweep { 0% { top: 0; opacity: .9; } 88% { opacity: .9; } 100% { top: 100%; opacity: 0; } }
+
+/* OWASP: each category "arms" a green check as it reveals (sequential) */
+.owasp-num::after { content: '\2713'; margin-left: 7px; color: var(--pos); opacity: 0;
+  transform: scale(.3); display: inline-block; transition: opacity .35s ease, transform .4s cubic-bezier(.2,1.5,.4,1); }
+.owasp-item.in .owasp-num::after { opacity: 1; transform: scale(1); }
+.owasp-item:nth-child(2).in .owasp-num::after,
+.owasp-item:nth-child(4).in .owasp-num::after,
+.owasp-item:nth-child(6).in .owasp-num::after { transition-delay: .07s; }
+.owasp-grid .owasp-item { transition-delay: 0s; }
+.owasp-grid .owasp-item:nth-child(3), .owasp-grid .owasp-item:nth-child(4) { transition-delay: .06s; }
+.owasp-grid .owasp-item:nth-child(5), .owasp-grid .owasp-item:nth-child(6) { transition-delay: .12s; }
+.owasp-grid .owasp-item:nth-child(7), .owasp-grid .owasp-item:nth-child(8) { transition-delay: .18s; }
+.owasp-grid .owasp-item:nth-child(9), .owasp-grid .owasp-item:nth-child(10) { transition-delay: .24s; }
+
+/* report preview: looping scan-line, like a document being scanned */
+.report-scan { position: relative; overflow: hidden; }
+.report-scan::before { content: ''; position: absolute; left: 0; right: 0; height: 44px; top: -44px; z-index: 1;
+  background: linear-gradient(180deg, transparent, rgba(220,38,38,.13), transparent); pointer-events: none;
+  animation: reportScan 4.5s linear infinite; }
+@keyframes reportScan { 0% { top: -44px; } 100% { top: 100%; } }
+
+/* pricing: staggered rise + featured card glow */
+.pricing-grid .price-card:nth-child(2) { transition-delay: .1s; }
+.pricing-grid .price-card:nth-child(3) { transition-delay: .2s; }
+.price-card.featured { animation: featGlow 3s ease-in-out infinite; }
+@keyframes featGlow { 0%, 100% { box-shadow: 0 0 0 rgba(220,38,38,0); } 50% { box-shadow: 0 -1px 34px rgba(220,38,38,.28); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .scanner-wrap.in::after, .report-scan::before, .price-card.featured { animation: none; }
+  .owasp-num::after { opacity: 1; transform: none; transition: none; }
+}
+
 @media (max-width: 900px) {
   .pricing-grid { grid-template-columns: 1fr; }
   .owasp-grid   { grid-template-columns: 1fr; }
@@ -84,7 +123,7 @@
 </nav>
 
 <div class="page-hero">
-  <div style="max-width:1200px; margin:0 auto;">
+  <div class="reveal" style="max-width:1200px; margin:0 auto;">
     <p class="section-label">Audit Packages</p>
     <h1>Audit Packages</h1>
     <p>Choose a package or request a custom scope. All audits delivered as branded PDF reports.</p>
@@ -98,7 +137,7 @@
   <p class="section-sub" style="margin-bottom:40px;">Every audit runs all three scanners automatically. Submit your domain — a severity-graded PDF comes out within 48 hours.</p>
 </div>
 <div style="max-width:1200px; margin:0 auto; padding:0 48px 60px; border-bottom:1px solid var(--border2);">
-  <div style="background:var(--surface); border:1px solid var(--border2);">
+  <div class="scanner-wrap reveal" style="background:var(--surface); border:1px solid var(--border2);">
     <div class="scanner-row" style="border-bottom:1px solid var(--border); background:var(--surface2);">
       <div style="font-family:var(--mono);font-size:10px;letter-spacing:3px;color:var(--muted);">TOOL</div>
       <div style="font-family:var(--mono);font-size:10px;letter-spacing:3px;color:var(--muted);">VERSION</div>
@@ -134,16 +173,16 @@
 </div>
 <div style="max-width:1200px; margin:0 auto; padding:0 48px 80px;">
   <div class="owasp-grid">
-    <div class="owasp-item"><div class="owasp-num">A01</div><div><div class="owasp-name">Broken Access Control</div><div class="owasp-body">Missing auth checks, privilege escalation, IDOR vulnerabilities, exposed admin routes.</div></div></div>
-    <div class="owasp-item"><div class="owasp-num">A02</div><div><div class="owasp-name">Cryptographic Failures</div><div class="owasp-body">Weak algorithms, hardcoded keys, secrets in code, insecure transmission.</div></div></div>
-    <div class="owasp-item"><div class="owasp-num">A03</div><div><div class="owasp-name">Injection</div><div class="owasp-body">SQL, NoSQL, OS command, LDAP injection. Parameterized query enforcement.</div></div></div>
-    <div class="owasp-item"><div class="owasp-num">A04</div><div><div class="owasp-name">Insecure Design</div><div class="owasp-body">Missing threat modeling, insecure architecture patterns, missing rate limiting.</div></div></div>
-    <div class="owasp-item"><div class="owasp-num">A05</div><div><div class="owasp-name">Security Misconfiguration</div><div class="owasp-body">Default creds, open S3 buckets, verbose error messages, unnecessary features enabled.</div></div></div>
-    <div class="owasp-item"><div class="owasp-num">A06</div><div><div class="owasp-name">Vulnerable Components</div><div class="owasp-body">Outdated packages with known CVEs. Full dependency tree scan via Safety/pip-audit.</div></div></div>
-    <div class="owasp-item"><div class="owasp-num">A07</div><div><div class="owasp-name">Auth &amp; Session Failures</div><div class="owasp-body">Weak passwords, broken session management, missing MFA, credential exposure.</div></div></div>
-    <div class="owasp-item"><div class="owasp-num">A08</div><div><div class="owasp-name">Software Integrity Failures</div><div class="owasp-body">Insecure CI/CD pipelines, unsigned packages, unverified auto-updates.</div></div></div>
-    <div class="owasp-item"><div class="owasp-num">A09</div><div><div class="owasp-name">Logging &amp; Monitoring Failures</div><div class="owasp-body">Missing audit logs, no alerting on suspicious events, log injection vulnerabilities.</div></div></div>
-    <div class="owasp-item"><div class="owasp-num">A10</div><div><div class="owasp-name">Server-Side Request Forgery</div><div class="owasp-body">SSRF vulnerabilities, unvalidated URL redirects, internal network exposure.</div></div></div>
+    <div class="owasp-item reveal"><div class="owasp-num">A01</div><div><div class="owasp-name">Broken Access Control</div><div class="owasp-body">Missing auth checks, privilege escalation, IDOR vulnerabilities, exposed admin routes.</div></div></div>
+    <div class="owasp-item reveal"><div class="owasp-num">A02</div><div><div class="owasp-name">Cryptographic Failures</div><div class="owasp-body">Weak algorithms, hardcoded keys, secrets in code, insecure transmission.</div></div></div>
+    <div class="owasp-item reveal"><div class="owasp-num">A03</div><div><div class="owasp-name">Injection</div><div class="owasp-body">SQL, NoSQL, OS command, LDAP injection. Parameterized query enforcement.</div></div></div>
+    <div class="owasp-item reveal"><div class="owasp-num">A04</div><div><div class="owasp-name">Insecure Design</div><div class="owasp-body">Missing threat modeling, insecure architecture patterns, missing rate limiting.</div></div></div>
+    <div class="owasp-item reveal"><div class="owasp-num">A05</div><div><div class="owasp-name">Security Misconfiguration</div><div class="owasp-body">Default creds, open S3 buckets, verbose error messages, unnecessary features enabled.</div></div></div>
+    <div class="owasp-item reveal"><div class="owasp-num">A06</div><div><div class="owasp-name">Vulnerable Components</div><div class="owasp-body">Outdated packages with known CVEs. Full dependency tree scan via Safety/pip-audit.</div></div></div>
+    <div class="owasp-item reveal"><div class="owasp-num">A07</div><div><div class="owasp-name">Auth &amp; Session Failures</div><div class="owasp-body">Weak passwords, broken session management, missing MFA, credential exposure.</div></div></div>
+    <div class="owasp-item reveal"><div class="owasp-num">A08</div><div><div class="owasp-name">Software Integrity Failures</div><div class="owasp-body">Insecure CI/CD pipelines, unsigned packages, unverified auto-updates.</div></div></div>
+    <div class="owasp-item reveal"><div class="owasp-num">A09</div><div><div class="owasp-name">Logging &amp; Monitoring Failures</div><div class="owasp-body">Missing audit logs, no alerting on suspicious events, log injection vulnerabilities.</div></div></div>
+    <div class="owasp-item reveal"><div class="owasp-num">A10</div><div><div class="owasp-name">Server-Side Request Forgery</div><div class="owasp-body">SSRF vulnerabilities, unvalidated URL redirects, internal network exposure.</div></div></div>
   </div>
 </div>
 
@@ -152,7 +191,7 @@
   <div style="max-width:1200px; margin:0 auto;">
     <p class="section-label">Sample Output</p>
     <h2 class="section-title" style="margin-bottom:40px;">What your report looks like.</h2>
-    <div class="report-preview">
+    <div class="report-preview report-scan reveal">
       <div class="rp-header">D2D SPIRIT — SECURITY AUDIT REPORT</div>
       <div>Client: [Your Company] &nbsp;|&nbsp; Scan Date: 2026-06-23 &nbsp;|&nbsp; Scope: Python + Web App</div>
       <div class="rp-section">Executive Summary</div>
@@ -180,7 +219,7 @@
 </div>
 <div style="max-width:1200px; margin:0 auto; padding:0 48px 80px;">
   <div class="pricing-grid">
-    <div class="price-card">
+    <div class="price-card reveal">
       <div class="price-tier">Starter</div>
       <div class="price-val">$499<span> one-time</span></div>
       <div class="price-desc">Web App Scan. For SaaS teams and startups that need a fast, structured security baseline before launch.</div>
@@ -196,7 +235,7 @@
       </ul>
       <a href="mailto:rishithang5@gmail.com" class="btn-ghost" style="width:100%;justify-content:center;">Get Started</a>
     </div>
-    <div class="price-card featured">
+    <div class="price-card featured reveal">
       <div class="price-badge">MOST POPULAR</div>
       <div class="price-tier">Professional</div>
       <div class="price-val">$2,499<span>/mo</span></div>
@@ -212,7 +251,7 @@
       </ul>
       <a href="mailto:rishithang5@gmail.com" class="btn-primary" style="width:100%;justify-content:center;">Get Started &rarr;</a>
     </div>
-    <div class="price-card">
+    <div class="price-card reveal">
       <div class="price-tier">Enterprise</div>
       <div class="price-val">$9,999<span> custom</span></div>
       <div class="price-desc">Full Pentest + SOC 2 Gap. For companies preparing for a SOC 2 Type II audit or handling sensitive customer data.</div>
@@ -241,5 +280,6 @@
   <span>Built by <a href="https://rishithangada.github.io" target="_blank">Rishi Thangada</a></span>
   <span><a href="mailto:rishithang5@gmail.com">rishithang5@gmail.com</a></span>
 </footer>
+<script src="shared.js" defer></script>
 </body>
 </html>

@@ -47,6 +47,36 @@
 }
 .category-header:first-of-type { border-top: none; }
 
+/* ── Section animations ── */
+/* hero: a signal pulse travels the arrows, Scope → Scan → Report → Remediation */
+.page-hero h1 .flow-arrow { color: var(--accent); display: inline-block; animation: arrowFlow 2.6s ease-in-out infinite; }
+.page-hero h1 .flow-arrow:nth-of-type(2) { animation-delay: .32s; }
+.page-hero h1 .flow-arrow:nth-of-type(3) { animation-delay: .64s; }
+@keyframes arrowFlow {
+  0%, 100% { opacity: .32; transform: translateX(0); text-shadow: none; }
+  50% { opacity: 1; transform: translateX(5px); text-shadow: 0 0 14px rgba(220,38,38,.65); }
+}
+
+/* steps: cascade in 01→04, each number badge "activates" as it arrives */
+.int-grid .int-card:nth-child(2) { transition-delay: .12s; }
+.int-grid .int-card:nth-child(3) { transition-delay: .24s; }
+.int-grid .int-card:nth-child(4) { transition-delay: .36s; }
+.int-icon { transition: box-shadow .4s ease; }
+.int-card.in .int-icon { animation: iconActivate .9s ease .15s 1; }
+.int-grid .int-card:nth-child(2).in .int-icon { animation-delay: .27s; }
+.int-grid .int-card:nth-child(3).in .int-icon { animation-delay: .39s; }
+.int-grid .int-card:nth-child(4).in .int-icon { animation-delay: .51s; }
+@keyframes iconActivate {
+  0% { box-shadow: 0 0 0 rgba(220,38,38,0); }
+  40% { background: var(--accent); color: #fff; box-shadow: 0 0 24px rgba(220,38,38,.6); }
+  100% { box-shadow: 0 0 0 rgba(220,38,38,0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-hero h1 .flow-arrow { animation: none; opacity: 1; transform: none; }
+  .int-card.in .int-icon { animation: none; }
+}
+
 @media (max-width: 900px) { .int-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -64,9 +94,9 @@
 </nav>
 
 <div class="page-hero">
-  <div style="max-width:1200px; margin:0 auto;">
+  <div class="reveal" style="max-width:1200px; margin:0 auto;">
     <p class="section-label">Audit Process</p>
-    <h1>Scope &rarr; Scan &rarr;<br>Report &rarr; Remediation.</h1>
+    <h1>Scope <span class="flow-arrow">&rarr;</span> Scan <span class="flow-arrow">&rarr;</span><br>Report <span class="flow-arrow">&rarr;</span> Remediation.</h1>
     <p>Every D2D Spirit engagement follows the same four-step process. You submit a domain, confirm authorization, we run the scans — you get a branded PDF with severity-rated findings and a clear remediation path in 48 hours.</p>
   </div>
 </div>
@@ -74,7 +104,7 @@
 <!-- AUDIT PROCESS STEPS -->
 <div class="category-header">Step-by-Step</div>
 <div class="int-grid" style="grid-template-columns: repeat(2, 1fr);">
-  <div class="int-card">
+  <div class="int-card reveal">
     <div class="int-header">
       <div class="int-icon">01</div>
       <div><div class="int-name">Submit Scope</div><div class="int-status status-live">24HR CONFIRM</div></div>
@@ -82,7 +112,7 @@
     <div class="int-body">You submit your domain and describe the scope — web app, API, admin surface, or all three. We confirm the engagement within 24 hours and set a delivery date.</div>
     <div class="int-tags"><span class="tag">Domain Intake</span><span class="tag">Scope Review</span><span class="tag green">24hr Confirm</span></div>
   </div>
-  <div class="int-card">
+  <div class="int-card reveal">
     <div class="int-header">
       <div class="int-icon">02</div>
       <div><div class="int-name">AI-Powered Scan</div><div class="int-status status-live">AUTOMATED</div></div>
@@ -90,7 +120,7 @@
     <div class="int-body">Our scanner runs OWASP Top 10 checks, port scan across 20 common service ports, HTTP header analysis, SSL/TLS certificate review, and CVE lookup against known vulnerability databases.</div>
     <div class="int-tags"><span class="tag red">OWASP</span><span class="tag">Port Scan</span><span class="tag">SSL Check</span><span class="tag amber">CVE Lookup</span></div>
   </div>
-  <div class="int-card">
+  <div class="int-card reveal">
     <div class="int-header">
       <div class="int-icon">03</div>
       <div><div class="int-name">Branded PDF Report</div><div class="int-status status-addon">48HR DELIVERY</div></div>
@@ -98,7 +128,7 @@
     <div class="int-body">We generate a branded PDF report with every finding severity-rated (Critical / High / Medium / Low / Informational) and paired with a concrete remediation step. No raw scanner output — a readable document your team can act on.</div>
     <div class="int-tags"><span class="tag red">Severity Rated</span><span class="tag amber">PDF Report</span><span class="tag">Remediation Steps</span></div>
   </div>
-  <div class="int-card">
+  <div class="int-card reveal">
     <div class="int-header">
       <div class="int-icon">04</div>
       <div><div class="int-name">Walkthrough + Monitoring</div><div class="int-status status-ready">OPTIONAL</div></div>
@@ -119,5 +149,6 @@
   <span>Built by <a href="https://rishithangada.github.io" target="_blank">Rishi Thangada</a></span>
   <span><a href="mailto:rishithang5@gmail.com">rishithang5@gmail.com</a></span>
 </footer>
+<script src="shared.js" defer></script>
 </body>
 </html>

@@ -54,6 +54,34 @@
 .pipe-node.accent { border-color: rgba(220,38,38,0.5); color: var(--accent); }
 .pipe-arrow { color: var(--muted); padding: 0 8px; font-size: 16px; }
 
+/* ── Section animations ── */
+/* pipeline: a highlight wave flows left→right through the scan stages */
+.pipe-node { animation: nodePulse 4.6s ease-in-out infinite; animation-delay: var(--d, 0s); }
+.pipe-arrow { animation: arrowPulse 4.6s ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes nodePulse {
+  0%, 82%, 100% { box-shadow: 0 0 0 rgba(220,38,38,0); }
+  8% { box-shadow: 0 0 16px rgba(220,38,38,.45); border-color: rgba(220,38,38,.8); }
+}
+@keyframes arrowPulse {
+  0%, 82%, 100% { color: var(--muted); text-shadow: none; }
+  8% { color: var(--accent); text-shadow: 0 0 10px rgba(220,38,38,.6); }
+}
+
+/* terminal: faint scan-line drifting down the active screen */
+.demo-screen { position: relative; }
+.demo-screen::after { content: ''; position: absolute; left: 0; right: 0; height: 38px; top: -38px; z-index: 2; pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(74,222,128,.09), transparent); animation: screenScan 5s linear infinite; }
+@keyframes screenScan { 0% { top: -38px; } 100% { top: 100%; } }
+
+/* stats: staggered fade + count-up (shared.js drives the numbers) */
+.stats-row .stat-block:nth-child(2) { transition-delay: .1s; }
+.stats-row .stat-block:nth-child(3) { transition-delay: .2s; }
+.stats-row .stat-block:nth-child(4) { transition-delay: .3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pipe-node, .pipe-arrow, .demo-screen::after { animation: none; }
+}
+
 @media (max-width:900px) {
   .demo-panel.active { grid-template-columns: 1fr; }
   .stats-row { grid-template-columns: repeat(2,1fr); }
@@ -76,7 +104,7 @@
 </nav>
 
 <div class="page-hero">
-  <div style="max-width:1200px; margin:0 auto;">
+  <div class="reveal" style="max-width:1200px; margin:0 auto;">
     <p class="section-label">Free Scan Demo</p>
     <h1>This is what your<br>audit report looks like.</h1>
     <p style="font-size:17px;color:var(--muted);max-width:540px;line-height:1.7;">
@@ -251,13 +279,13 @@
 
 <!-- Stats -->
 <div class="stats-row">
-  <div class="stat-block"><div class="stat-n">10</div><div class="stat-l">OWASP categories checked</div></div>
-  <div class="stat-block"><div class="stat-n">48hr</div><div class="stat-l">Report turnaround</div></div>
-  <div class="stat-block"><div class="stat-n">20</div><div class="stat-l">Ports scanned per target</div></div>
-  <div class="stat-block"><div class="stat-n">$0</div><div class="stat-l">Retainer required</div></div>
+  <div class="stat-block reveal"><div class="stat-n" data-count="10">0</div><div class="stat-l">OWASP categories checked</div></div>
+  <div class="stat-block reveal"><div class="stat-n" data-count="48" data-suffix="hr">0hr</div><div class="stat-l">Report turnaround</div></div>
+  <div class="stat-block reveal"><div class="stat-n" data-count="20">0</div><div class="stat-l">Ports scanned per target</div></div>
+  <div class="stat-block reveal"><div class="stat-n" data-prefix="$" data-count="0">$0</div><div class="stat-l">Retainer required</div></div>
 </div>
 
-<div class="cta-block">
+<div class="cta-block reveal">
   <h2>Ready to see your own results?</h2>
   <p>Email us your domain and we will run a preliminary scan and send back a summary — free, no commitment.</p>
   <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
@@ -279,6 +307,11 @@ function showTab(name) {
   event.target.classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
 }
+// Stagger the pipeline highlight wave by node position
+document.querySelectorAll('.pipeline > div').forEach(function (el, i) {
+  el.style.setProperty('--d', (i * 0.18) + 's');
+});
 </script>
+<script src="shared.js" defer></script>
 </body>
 </html>
