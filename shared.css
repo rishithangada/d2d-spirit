@@ -70,6 +70,10 @@ nav.topnav {
 .reveal.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
 
+/* ── Centered section header (label + title + sub) ── */
+.sec-head { text-align: center; }
+.sec-head > p, .sec-head .section-sub { margin-left: auto; margin-right: auto; }
+
 /* ── CTA block (index overrides inline with a richer version) ── */
 .cta-block { text-align: center; padding: 80px 48px; border-top: 1px solid var(--border2); }
 .cta-block h2 { font-size: 32px; font-weight: 800; margin-bottom: 14px; }

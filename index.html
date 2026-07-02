@@ -512,6 +512,10 @@ nav.topnav {
 .race-fill.d2d { background: linear-gradient(90deg, var(--accent), #16a34a); box-shadow: 0 0 18px rgba(220,38,38,.28); transition: width .75s cubic-bezier(.2,.9,.2,1); }
 .race-fill.d2d .rv { color: #120404; }
 .compare-strip.in .race-fill { width: var(--w); }
+/* centered section headers */
+.compare-strip > .section-label, .compare-strip > .section-title { text-align: center; }
+.audit-form-inner > .section-label, .audit-form-inner > .section-title, .audit-form-inner > .section-sub { text-align: center; }
+.audit-form-inner > .section-sub { margin-left: auto; margin-right: auto; }
 
 /* ── Services grid ── */
 .services-grid {
@@ -556,7 +560,7 @@ nav.topnav {
   display: grid; grid-template-columns: repeat(4, 1fr);
   gap: 1px; background: var(--border2);
 }
-.proof-item { background: var(--bg); padding: 40px; opacity: 0; transform: translateY(18px);
+.proof-item { background: var(--bg); padding: 40px; text-align: center; opacity: 0; transform: translateY(18px);
   transition: opacity .5s ease, transform .5s cubic-bezier(.2,.7,.2,1); }
 .proof-strip.in .proof-item { opacity: 1; transform: none; }
 .proof-strip.in .proof-item:nth-child(2){ transition-delay: .1s; }
@@ -1167,7 +1171,7 @@ body::before { animation: auroraDrift 24s ease-in-out infinite alternate; }
 <hr class="divider">
 
 <!-- Services -->
-<div id="services" style="padding:120px 60px 0;max-width:1200px;margin:0 auto;">
+<div id="services" class="sec-head" style="padding:120px 60px 0;max-width:1200px;margin:0 auto;">
   <p class="section-label">What we audit</p>
   <h2 class="section-title">Four services.<br>One structured report.</h2>
   <p class="section-sub">Every engagement delivers a branded report with CVSS severity ratings and a remediation roadmap — not a raw scanner dump.</p>
