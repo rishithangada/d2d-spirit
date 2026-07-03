@@ -1363,54 +1363,99 @@ body::before { animation: auroraDrift 24s ease-in-out infinite alternate; }
 </footer>
 
 <script>
-// Terminal animation — timestamped format like 21st.dev design
-const termLines = [
-  { text: '> Initializing security audit...', cls: 't-cmd-line' },
-  { text: '> Scanning ports [22, 80, 443, 8080]...', cls: 't-cmd-line' },
-  { text: '✓ Port 443 (HTTPS) — OPEN', cls: 't-ok' },
-  { text: '✓ Port 80 (HTTP) — OPEN', cls: 't-ok' },
-  { text: '> Checking SSL/TLS certificates...', cls: 't-cmd-line' },
-  { text: '✓ SSL Certificate valid (expires in 89 days)', cls: 't-ok' },
-  { text: '△ TLS 1.0 detected — upgrade recommended', cls: 't-warn' },
-  { text: '> Running OWASP Top 10 checks...', cls: 't-cmd-line' },
-  { text: '✗ X-Frame-Options header MISSING', cls: 't-crit' },
-  { text: '✗ Content-Security-Policy MISSING', cls: 't-crit' },
-  { text: '△ Server: Apache/2.4.41 disclosed', cls: 't-warn' },
-  { text: '> Scan complete. Generating report...', cls: 't-gray' },
+// Terminal animation — loops through varied audit runs, one live scan after another
+const SCENARIOS = [
+  [
+    { text: '> Initializing security audit...', cls: 't-cmd-line' },
+    { text: '> Target: acme-startup.io', cls: 't-gray' },
+    { text: '> Scanning ports [22, 80, 443, 8080]...', cls: 't-cmd-line' },
+    { text: '✓ Port 443 (HTTPS) — OPEN', cls: 't-ok' },
+    { text: '△ Port 22 (SSH) — exposed to public', cls: 't-warn' },
+    { text: '> Checking SSL/TLS certificates...', cls: 't-cmd-line' },
+    { text: '✓ SSL Certificate valid (expires in 89 days)', cls: 't-ok' },
+    { text: '△ TLS 1.0 detected — upgrade recommended', cls: 't-warn' },
+    { text: '> Running OWASP Top 10 checks...', cls: 't-cmd-line' },
+    { text: '✗ X-Frame-Options header MISSING', cls: 't-crit' },
+    { text: '✗ Content-Security-Policy MISSING', cls: 't-crit' },
+    { text: '> Scan complete. 2 critical, 2 warnings.', cls: 't-gray' },
+  ],
+  [
+    { text: '> Initializing security audit...', cls: 't-cmd-line' },
+    { text: '> Target: shoply.app', cls: 't-gray' },
+    { text: '> Scanning ports [80, 443, 3306]...', cls: 't-cmd-line' },
+    { text: '✓ Port 443 (HTTPS) — OPEN', cls: 't-ok' },
+    { text: '✗ Port 3306 (MySQL) — EXPOSED', cls: 't-crit' },
+    { text: '> Checking SSL/TLS certificates...', cls: 't-cmd-line' },
+    { text: '✓ SSL Certificate valid (expires in 214 days)', cls: 't-ok' },
+    { text: '✓ TLS 1.3 enforced', cls: 't-ok' },
+    { text: '> Running OWASP Top 10 checks...', cls: 't-cmd-line' },
+    { text: '✓ Security headers present', cls: 't-ok' },
+    { text: '△ Rate limiting not detected', cls: 't-warn' },
+    { text: '> Scan complete. 1 critical, 1 warning.', cls: 't-gray' },
+  ],
+  [
+    { text: '> Initializing security audit...', cls: 't-cmd-line' },
+    { text: '> Target: api.fintech.co', cls: 't-gray' },
+    { text: '> Scanning ports [443, 8080, 6379]...', cls: 't-cmd-line' },
+    { text: '✓ Port 443 (HTTPS) — OPEN', cls: 't-ok' },
+    { text: '✗ Port 6379 (Redis) — EXPOSED, no auth', cls: 't-crit' },
+    { text: '> Checking SSL/TLS certificates...', cls: 't-cmd-line' },
+    { text: '△ Certificate expires in 12 days', cls: 't-warn' },
+    { text: '> Running OWASP Top 10 checks...', cls: 't-cmd-line' },
+    { text: '✗ SQL injection point — /api/login', cls: 't-crit' },
+    { text: '✓ CSRF tokens present', cls: 't-ok' },
+    { text: '> Scan complete. 2 critical, 1 warning.', cls: 't-gray' },
+  ],
 ];
 
 const termOut = document.getElementById('term-out');
-let lineIdx = 0;
-const startTime = new Date();
-
 function pad(n) { return String(n).padStart(2, '0'); }
 function timestamp() {
   const d = new Date();
   return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
-
-function addTermLine() {
-  if (lineIdx >= termLines.length) {
-    const cur = document.createElement('span');
-    cur.className = 't-cursor';
-    termOut.appendChild(cur);
-    return;
-  }
-  const { text, cls } = termLines[lineIdx++];
+function makeRow(text, cls) {
   const row = document.createElement('div');
-  const ts = document.createElement('span');
-  ts.className = 't-ts';
-  ts.textContent = timestamp() + ' ';
-  const msg = document.createElement('span');
-  msg.className = cls;
-  msg.textContent = text;
-  row.appendChild(ts);
-  row.appendChild(msg);
-  termOut.appendChild(row);
-  const delay = cls === 't-cmd-line' ? 600 : 300;
-  setTimeout(addTermLine, delay);
+  const ts = document.createElement('span'); ts.className = 't-ts'; ts.textContent = timestamp() + ' ';
+  const msg = document.createElement('span'); msg.className = cls; msg.textContent = text;
+  row.appendChild(ts); row.appendChild(msg);
+  return row;
 }
-setTimeout(addTermLine, 600);
+
+const reduceTerm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let scenarioIdx = 0;
+
+function runScan() {
+  const lines = SCENARIOS[scenarioIdx % SCENARIOS.length];
+  scenarioIdx++;
+  termOut.style.opacity = '1';
+  termOut.innerHTML = '';
+  let i = 0;
+  (function step() {
+    if (i >= lines.length) {
+      const cur = document.createElement('span'); cur.className = 't-cursor';
+      termOut.appendChild(cur);
+      // hold on the finished report, then fade and run the next audit
+      setTimeout(() => {
+        termOut.style.transition = 'opacity .5s ease';
+        termOut.style.opacity = '0';
+        setTimeout(runScan, 550);
+      }, 3400);
+      return;
+    }
+    const { text, cls } = lines[i++];
+    termOut.appendChild(makeRow(text, cls));
+    setTimeout(step, cls === 't-cmd-line' ? 560 : 300);
+  })();
+}
+
+if (reduceTerm) {
+  // static: show one completed run, no looping
+  SCENARIOS[0].forEach(l => termOut.appendChild(makeRow(l.text, l.cls)));
+  const cur = document.createElement('span'); cur.className = 't-cursor'; termOut.appendChild(cur);
+} else {
+  setTimeout(runScan, 600);
+}
 
 // Form auth gate
 function updateSubmit() {
