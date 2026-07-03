@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://buy.stripe.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://buy.stripe.com https://cybersec-hub.onrender.com;">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>D2D Spirit — Direct to Defend | AI Security Auditing</title>
@@ -1465,17 +1465,52 @@ function updateSubmit() {
   btn.classList.toggle('enabled', c1 && c2);
 }
 
-function handleSubmit(e) {
+// Package → live Stripe payment link (each tagged tier/package metadata).
+const PAY_LINKS = {
+  'Starter $499': 'https://buy.stripe.com/fZu7sEd0Q9Cp36I3rh1sQ00',
+  'Growth $999':  'https://buy.stripe.com/eVqcMY0e44i536IaTJ1sQ01',
+  'Pro $2499':    'https://buy.stripe.com/5kQ4gs1i88ylePq2nd1sQ02',
+};
+const INTAKE_API = 'https://cybersec-hub.onrender.com/intake';
+
+async function handleSubmit(e) {
   e.preventDefault();
   const btn = document.getElementById('submit-btn');
   if (!btn.classList.contains('enabled')) return;
   const name = document.getElementById('f-name').value.trim();
   const email = document.getElementById('f-email').value.trim();
   const domain = document.getElementById('f-domain').value.trim();
+  const pkg = document.getElementById('f-package').value;
   if (!name || !email || !domain) { alert('Please fill in all fields.'); return; }
-  // ponytail: replace with real Stripe Payment Link — Dashboard → Products → Create Payment Link
-  const stripeBase = 'https://buy.stripe.com/fZu7sEd0Q9Cp36I3rh1sQ00';
-  window.open(stripeBase + '?prefilled_email=' + encodeURIComponent(email), '_blank');
+
+  const link = PAY_LINKS[pkg] || PAY_LINKS['Starter $499'];
+  const original = btn.innerHTML;
+  btn.innerHTML = 'Recording authorization…';
+  btn.style.pointerEvents = 'none';
+
+  // Record written authorization FIRST (CFAA), get intake_id, then take payment.
+  try {
+    const res = await fetch(INTAKE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name, email, domain, package: pkg,
+        owns_confirmed: document.getElementById('check-own').checked,
+        roe_confirmed: document.getElementById('check-roe').checked,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.intake_id) throw new Error(data.error || 'intake failed');
+    // Tie the payment to this authorization so the webhook can unlock the audit.
+    window.location.href = link
+      + '?client_reference_id=' + encodeURIComponent(data.intake_id)
+      + '&prefilled_email=' + encodeURIComponent(email);
+  } catch (err) {
+    btn.innerHTML = original;
+    btn.style.pointerEvents = '';
+    alert('We could not record your authorization right now (the audit server may be waking up — free tier). '
+        + 'Please try again in a moment, or email rishithang5@gmail.com and we will set up your audit.');
+  }
 }
 
 // ── Flowing liquid-metal hero background (WebGL, domain-warped fbm noise, no deps) ──
