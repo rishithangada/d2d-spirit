@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>D2D Spirit Security Audit — app.northwindhq.com</title><style>
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{background:#080808;color:#c9d1d9;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;}
+      code{background:#111111;padding:1px 5px;border-radius:3px;font-size:.85em;color:#f0f0f0}
+      .container{max-width:880px;margin:0 auto;padding:40px 26px}
+      .header{border-bottom:2px solid rgba(255,255,255,.08);padding-bottom:22px;margin-bottom:28px}
+      .logo{color:#dc2626;font-size:1.4rem;font-weight:800;letter-spacing:2px}
+      .tag{color:#6b7280;font-size:.8rem;letter-spacing:3px;text-transform:uppercase}
+      .title{font-size:1.05rem;color:#f0f0f0;margin-top:10px;font-weight:600}
+      .meta{display:flex;gap:30px;margin-top:16px;font-size:.82rem;color:#6b7280;flex-wrap:wrap}
+      .meta span{display:flex;flex-direction:column;gap:2px}
+      .meta strong{color:#f0f0f0;font-family:monospace}
+      h2{color:#f0f0f0;font-size:.82rem;text-transform:uppercase;letter-spacing:2px;
+         margin:30px 0 14px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.08);
+         border-left:3px solid #dc2626;padding-left:11px}
+      table{width:100%;border-collapse:collapse;margin-top:8px}
+      th{text-align:left;color:#6b7280;font-size:.72rem;text-transform:uppercase;letter-spacing:1px;
+         padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+      td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);color:#f0f0f0}
+      tr:last-child td{border-bottom:none}
+      .footer{margin-top:44px;padding-top:22px;border-top:1px solid rgba(255,255,255,.08);color:#6e7681;
+              font-size:.78rem;line-height:1.7}
+    </style></head>
+<body><div style="background:#e3b341;color:#0d1117;text-align:center;padding:8px;font-weight:700;letter-spacing:1px;font-size:.8rem;">SAMPLE REPORT — illustrative data, not a real assessment</div>
+<div class="container">
+  <div class="header">
+    <div class="logo">D2D SPIRIT</div>
+    <div class="tag">Direct to Defend</div>
+    <div class="title">Security Audit Report</div>
+    <div class="meta">
+      <span><strong>app.northwindhq.com</strong>Target</span>
+      <span><strong>203.0.113.42</strong>Resolved IP</span>
+      <span><strong>growth</strong>Tier</span>
+      <span><strong>2026-07-08</strong>Date</span>
+      <span><strong>A5F20C08</strong>Report ID</span>
+    </div>
+  </div>
+
+  <h2>Risk Overview</h2>
+  
+    <div style="display:flex;align-items:center;gap:28px;flex-wrap:wrap;background:#0d0d0d;
+                border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:22px 26px;margin-bottom:8px;">
+      <div style="text-align:center;min-width:120px;">
+        <div style="font-size:3rem;font-weight:800;color:#e3b341;line-height:1;">57</div>
+        <div style="color:#8b949e;font-size:.7rem;letter-spacing:1px;">/ 100</div>
+        <div style="color:#e3b341;font-size:.72rem;font-weight:700;margin-top:6px;letter-spacing:1px;">MODERATE RISK</div>
+      </div>
+      <div style="flex:1;min-width:220px;">
+        <div style="color:#8b949e;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Findings by severity</div>
+        <div><span style="color:#f85149;font-weight:700;">0</span><span style="color:#8b949e;font-size:.75rem;"> critical</span>&nbsp;&nbsp;<span style="color:#e3824e;font-weight:700;">2</span><span style="color:#8b949e;font-size:.75rem;"> high</span>&nbsp;&nbsp;<span style="color:#e3b341;font-weight:700;">3</span><span style="color:#8b949e;font-size:.75rem;"> medium</span>&nbsp;&nbsp;<span style="color:#3fb950;font-weight:700;">2</span><span style="color:#8b949e;font-size:.75rem;"> low</span>&nbsp;&nbsp;<span style="color:#8b949e;font-weight:700;">1</span><span style="color:#8b949e;font-size:.75rem;"> info</span>&nbsp;&nbsp;</div>
+      </div>
+    </div>
+
+  <h2>Executive Summary</h2>
+  <p style="line-height:1.75;color:#c9d1d9;">The application is broadly well-configured but two issues expose it to practical attack paths. The API returns verbose stack traces on error, leaking framework internals an attacker can use to target known CVEs, and the login endpoint has no rate limiting, leaving it open to credential stuffing against the customer base. The single highest-priority fix is to suppress verbose API errors in production and add lockout on authentication.</p>
+
+  <h2>Scope &amp; Methodology</h2>
+  <ul style="color:#c9d1d9;line-height:1.6;padding-left:20px;"><li style="margin-bottom:6px;">Web application — open ports, TLS/SSL, security headers, cookies</li><li style="margin-bottom:6px;">API surface — docs/schema exposure, CORS, verbose errors, rate limiting</li></ul><p style="color:#8b949e;font-size:.82rem;margin-top:10px;">All testing was non-destructive and conducted under written authorization and defined scope.</p>
+
+  <h2>Findings &amp; Remediation</h2>
+  
+        <div style="border-left:4px solid #e3824e;background:#0d0d0d;border:1px solid rgba(255,255,255,.06);border-left:4px solid #e3824e;padding:15px 20px;margin-bottom:12px;border-radius:0 6px 6px 0;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
+            <span style="background:#e3824e;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">HIGH</span><span style="font-weight:600;color:#e6edf3;">API returns verbose stack traces on error</span>
+          </div>
+          <div style="color:#8b949e;font-size:.82rem;margin-top:6px;font-family:monospace;">Evidence: GET /api/v1/orders/%27 -&gt; 500 with full Django traceback + settings</div>
+          <div style="color:#8b949e;font-size:.85rem;margin-top:8px;">
+            <span style="color:#3fb950;">Remediation:</span> Return generic error responses in production; log stack traces server-side only.<br>Disable debug output in production; never expose stack traces to clients.
+          </div>
+        </div>
+
+        <div style="border-left:4px solid #e3824e;background:#0d0d0d;border:1px solid rgba(255,255,255,.06);border-left:4px solid #e3824e;padding:15px 20px;margin-bottom:12px;border-radius:0 6px 6px 0;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
+            <span style="background:#e3824e;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">HIGH</span><span style="font-weight:600;color:#e6edf3;">No rate limiting on /api/v1/auth/login</span>
+          </div>
+          <div style="color:#8b949e;font-size:.82rem;margin-top:6px;font-family:monospace;">Evidence: 120 requests/10s accepted with no throttling or lockout</div>
+          <div style="color:#8b949e;font-size:.85rem;margin-top:8px;">
+            <span style="color:#3fb950;">Remediation:</span> Add rate limiting / lockout on auth and sensitive endpoints to blunt credential-stuffing.
+          </div>
+        </div>
+
+        <div style="border-left:4px solid #e3b341;background:#0d0d0d;border:1px solid rgba(255,255,255,.06);border-left:4px solid #e3b341;padding:15px 20px;margin-bottom:12px;border-radius:0 6px 6px 0;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
+            <span style="background:#e3b341;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">MEDIUM</span><span style="font-weight:600;color:#e6edf3;">CORS policy allows arbitrary origins</span>
+          </div>
+          <div style="color:#8b949e;font-size:.82rem;margin-top:6px;font-family:monospace;">Evidence: Access-Control-Allow-Origin: * on /api/v1/users</div>
+          <div style="color:#8b949e;font-size:.85rem;margin-top:8px;">
+            <span style="color:#3fb950;">Remediation:</span> Replace <code>Access-Control-Allow-Origin: *</code> with an explicit allow-list of trusted origins.
+          </div>
+        </div>
+
+        <div style="border-left:4px solid #e3b341;background:#0d0d0d;border:1px solid rgba(255,255,255,.06);border-left:4px solid #e3b341;padding:15px 20px;margin-bottom:12px;border-radius:0 6px 6px 0;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
+            <span style="background:#e3b341;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">MEDIUM</span><span style="font-weight:600;color:#e6edf3;">Missing X-Frame-Options / frame-ancestors (clickjacking)</span>
+          </div>
+          
+          <div style="color:#8b949e;font-size:.85rem;margin-top:8px;">
+            <span style="color:#3fb950;">Remediation:</span> Set <code>X-Frame-Options: DENY</code> (or a CSP frame-ancestors directive).
+          </div>
+        </div>
+
+        <div style="border-left:4px solid #e3b341;background:#0d0d0d;border:1px solid rgba(255,255,255,.06);border-left:4px solid #e3b341;padding:15px 20px;margin-bottom:12px;border-radius:0 6px 6px 0;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
+            <span style="background:#e3b341;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">MEDIUM</span><span style="font-weight:600;color:#e6edf3;">Missing Strict-Transport-Security header</span>
+          </div>
+          
+          <div style="color:#8b949e;font-size:.85rem;margin-top:8px;">
+            <span style="color:#3fb950;">Remediation:</span> Set <code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code>.
+          </div>
+        </div>
+
+        <div style="border-left:4px solid #3fb950;background:#0d0d0d;border:1px solid rgba(255,255,255,.06);border-left:4px solid #3fb950;padding:15px 20px;margin-bottom:12px;border-radius:0 6px 6px 0;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
+            <span style="background:#3fb950;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">LOW</span><span style="font-weight:600;color:#e6edf3;">Server version disclosed in response headers</span>
+          </div>
+          <div style="color:#8b949e;font-size:.82rem;margin-top:6px;font-family:monospace;">Evidence: Server: nginx/1.18.0</div>
+          <div style="color:#8b949e;font-size:.85rem;margin-top:8px;">
+            <span style="color:#3fb950;">Remediation:</span> Suppress server/framework version banners in response headers.
+          </div>
+        </div>
+
+        <div style="border-left:4px solid #3fb950;background:#0d0d0d;border:1px solid rgba(255,255,255,.06);border-left:4px solid #3fb950;padding:15px 20px;margin-bottom:12px;border-radius:0 6px 6px 0;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
+            <span style="background:#3fb950;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">LOW</span><span style="font-weight:600;color:#e6edf3;">Missing Content-Security-Policy header</span>
+          </div>
+          
+          <div style="color:#8b949e;font-size:.85rem;margin-top:8px;">
+            <span style="color:#3fb950;">Remediation:</span> Review and remediate per security best practice.
+          </div>
+        </div>
+
+        <div style="border-left:4px solid #8b949e;background:#0d0d0d;border:1px solid rgba(255,255,255,.06);border-left:4px solid #8b949e;padding:15px 20px;margin-bottom:12px;border-radius:0 6px 6px 0;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
+            <span style="background:#8b949e;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">INFO</span><span style="font-weight:600;color:#e6edf3;">TLS 1.2 supported; TLS 1.3 recommended</span>
+          </div>
+          
+          <div style="color:#8b949e;font-size:.85rem;margin-top:8px;">
+            <span style="color:#3fb950;">Remediation:</span> Enable TLS 1.3 and disable legacy protocol/cipher suites.
+          </div>
+        </div>
+
+  <h2>Open Ports</h2>
+  <table><tr><th>Port</th><th>Service</th><th>Risk</th></tr><tr><td>443</td><td>https</td><td><span style="color:#8b949e;font-weight:700;">INFO</span></td></tr>
+<tr><td>80</td><td>http</td><td><span style="color:#8b949e;font-weight:700;">INFO</span></td></tr></table>
+
+  <h2>TLS / SSL</h2>
+  <table><tr><th>Certificate</th><th>Expires</th><th>Days remaining</th></tr><tr><td><span style="color:#3fb950;">VALID</span></td><td>2026-11-14</td><td><span style="color:#3fb950;">130 days</span></td></tr></table>
+
+  <h2>HTTP Security Headers</h2>
+  <p style="color:#8b949e;margin-bottom:8px;">Server: <span style="color:#e6edf3;">nginx/1.18.0</span></p><table><tr><th>Header</th><th>Status</th></tr><tr><td>strict-transport-security</td><td><span style="color:#f85149;font-weight:700;">MISSING</span></td></tr><tr><td>x-frame-options</td><td><span style="color:#3fb950;font-weight:700;">PRESENT</span></td></tr><tr><td>x-content-type-options</td><td><span style="color:#3fb950;font-weight:700;">PRESENT</span></td></tr><tr><td>content-security-policy</td><td><span style="color:#f85149;font-weight:700;">MISSING</span></td></tr><tr><td>referrer-policy</td><td><span style="color:#3fb950;font-weight:700;">PRESENT</span></td></tr></table>
+
+  <div class="footer">
+    Generated by D2D Spirit. This assessment was conducted non-destructively, under written
+    authorization and the scope agreed in your engagement (owns-domain + rules-of-engagement,
+    with domain ownership verified). Findings reflect the tested surface at the scan time and
+    are prioritized by severity. This is a productized web/API audit, not a substitute for a
+    full manual penetration test where regulatory attestation is required.
+    <br><br>Report ID: A5F20C08 &nbsp;|&nbsp; 2026-07-08 &nbsp;|&nbsp; app.northwindhq.com
+  </div>
+</div></body></html>
