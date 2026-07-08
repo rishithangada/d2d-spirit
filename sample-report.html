@@ -35,7 +35,7 @@
       <span><strong>203.0.113.42</strong>Resolved IP</span>
       <span><strong>growth</strong>Tier</span>
       <span><strong>2026-07-08</strong>Date</span>
-      <span><strong>A5F20C08</strong>Report ID</span>
+      <span><strong>266CF591</strong>Report ID</span>
     </div>
   </div>
 
@@ -142,6 +142,37 @@
           </div>
         </div>
 
+  <h2>Remediation Roadmap</h2>
+  <div style="display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+          <div style="flex-shrink:0;min-width:26px;height:26px;border-radius:50%;background:#e3824e;color:#080808;font-weight:800;font-size:.82rem;display:flex;align-items:center;justify-content:center;">1</div>
+          <div><div style="color:#f0f0f0;font-weight:600;font-size:.9rem;"><span style="background:#e3824e;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">HIGH</span>&nbsp;&nbsp;API returns verbose stack traces on error</div>
+            <div style="color:#8b949e;font-size:.84rem;margin-top:5px;">Return generic error responses in production; log stack traces server-side only.<br>Disable debug output in production; never expose stack traces to clients.</div></div>
+        </div><div style="display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+          <div style="flex-shrink:0;min-width:26px;height:26px;border-radius:50%;background:#e3824e;color:#080808;font-weight:800;font-size:.82rem;display:flex;align-items:center;justify-content:center;">2</div>
+          <div><div style="color:#f0f0f0;font-weight:600;font-size:.9rem;"><span style="background:#e3824e;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">HIGH</span>&nbsp;&nbsp;No rate limiting on /api/v1/auth/login</div>
+            <div style="color:#8b949e;font-size:.84rem;margin-top:5px;">Add rate limiting / lockout on auth and sensitive endpoints to blunt credential-stuffing.</div></div>
+        </div><div style="display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+          <div style="flex-shrink:0;min-width:26px;height:26px;border-radius:50%;background:#e3b341;color:#080808;font-weight:800;font-size:.82rem;display:flex;align-items:center;justify-content:center;">3</div>
+          <div><div style="color:#f0f0f0;font-weight:600;font-size:.9rem;"><span style="background:#e3b341;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">MEDIUM</span>&nbsp;&nbsp;CORS policy allows arbitrary origins</div>
+            <div style="color:#8b949e;font-size:.84rem;margin-top:5px;">Replace <code>Access-Control-Allow-Origin: *</code> with an explicit allow-list of trusted origins.</div></div>
+        </div><div style="display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+          <div style="flex-shrink:0;min-width:26px;height:26px;border-radius:50%;background:#e3b341;color:#080808;font-weight:800;font-size:.82rem;display:flex;align-items:center;justify-content:center;">4</div>
+          <div><div style="color:#f0f0f0;font-weight:600;font-size:.9rem;"><span style="background:#e3b341;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">MEDIUM</span>&nbsp;&nbsp;Missing X-Frame-Options / frame-ancestors (clickjacking)</div>
+            <div style="color:#8b949e;font-size:.84rem;margin-top:5px;">Set <code>X-Frame-Options: DENY</code> (or a CSP frame-ancestors directive).</div></div>
+        </div><div style="display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+          <div style="flex-shrink:0;min-width:26px;height:26px;border-radius:50%;background:#e3b341;color:#080808;font-weight:800;font-size:.82rem;display:flex;align-items:center;justify-content:center;">5</div>
+          <div><div style="color:#f0f0f0;font-weight:600;font-size:.9rem;"><span style="background:#e3b341;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">MEDIUM</span>&nbsp;&nbsp;Missing Strict-Transport-Security header</div>
+            <div style="color:#8b949e;font-size:.84rem;margin-top:5px;">Set <code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code>.</div></div>
+        </div><div style="display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+          <div style="flex-shrink:0;min-width:26px;height:26px;border-radius:50%;background:#3fb950;color:#080808;font-weight:800;font-size:.82rem;display:flex;align-items:center;justify-content:center;">6</div>
+          <div><div style="color:#f0f0f0;font-weight:600;font-size:.9rem;"><span style="background:#3fb950;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">LOW</span>&nbsp;&nbsp;Server version disclosed in response headers</div>
+            <div style="color:#8b949e;font-size:.84rem;margin-top:5px;">Suppress server/framework version banners in response headers.</div></div>
+        </div><div style="display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+          <div style="flex-shrink:0;min-width:26px;height:26px;border-radius:50%;background:#3fb950;color:#080808;font-weight:800;font-size:.82rem;display:flex;align-items:center;justify-content:center;">7</div>
+          <div><div style="color:#f0f0f0;font-weight:600;font-size:.9rem;"><span style="background:#3fb950;color:#0d1117;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;">LOW</span>&nbsp;&nbsp;Missing Content-Security-Policy header</div>
+            <div style="color:#8b949e;font-size:.84rem;margin-top:5px;">Review and remediate per security best practice.</div></div>
+        </div>
+
   <h2>Open Ports</h2>
   <table><tr><th>Port</th><th>Service</th><th>Risk</th></tr><tr><td>443</td><td>https</td><td><span style="color:#8b949e;font-weight:700;">INFO</span></td></tr>
 <tr><td>80</td><td>http</td><td><span style="color:#8b949e;font-weight:700;">INFO</span></td></tr></table>
@@ -152,12 +183,18 @@
   <h2>HTTP Security Headers</h2>
   <p style="color:#8b949e;margin-bottom:8px;">Server: <span style="color:#e6edf3;">nginx/1.18.0</span></p><table><tr><th>Header</th><th>Status</th></tr><tr><td>strict-transport-security</td><td><span style="color:#f85149;font-weight:700;">MISSING</span></td></tr><tr><td>x-frame-options</td><td><span style="color:#3fb950;font-weight:700;">PRESENT</span></td></tr><tr><td>x-content-type-options</td><td><span style="color:#3fb950;font-weight:700;">PRESENT</span></td></tr><tr><td>content-security-policy</td><td><span style="color:#f85149;font-weight:700;">MISSING</span></td></tr><tr><td>referrer-policy</td><td><span style="color:#3fb950;font-weight:700;">PRESENT</span></td></tr></table>
 
+  <h2>Verify &amp; Re-Scan</h2>
+  <div style="background:#0d0d0d;border:1px solid rgba(220,38,38,.3);border-radius:10px;padding:22px 26px;margin-top:8px;">
+      <div style="color:#dc2626;font-weight:800;letter-spacing:1px;font-size:.76rem;text-transform:uppercase;">Next step — verify the fix</div>
+      <p style="color:#c9d1d9;line-height:1.7;margin-top:9px;">Once your team remediates the items above, D2D re-scans the same scope and issues a <strong style="color:#f0f0f0;">verification report</strong> confirming each finding is resolved — the clean-bill evidence your enterprise customers and security questionnaires ask for. Your devs do the fixes; we prove they hold.</p>
+    </div>
+
   <div class="footer">
     Generated by D2D Spirit. This assessment was conducted non-destructively, under written
     authorization and the scope agreed in your engagement (owns-domain + rules-of-engagement,
     with domain ownership verified). Findings reflect the tested surface at the scan time and
     are prioritized by severity. This is a productized web/API audit, not a substitute for a
     full manual penetration test where regulatory attestation is required.
-    <br><br>Report ID: A5F20C08 &nbsp;|&nbsp; 2026-07-08 &nbsp;|&nbsp; app.northwindhq.com
+    <br><br>Report ID: 266CF591 &nbsp;|&nbsp; 2026-07-08 &nbsp;|&nbsp; app.northwindhq.com
   </div>
 </div></body></html>
